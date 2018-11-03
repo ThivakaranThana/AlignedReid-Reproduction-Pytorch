@@ -1,0 +1,4 @@
+/home/niruhan/AlignedReID-Re-Production-Pytorch/aligned_reid/model/Model.py:20: UserWarning: nn.init.normal is now deprecated in favor of nn.init.normal_.
+  init.normal(self.fc.weight, std=0.001)
+/home/niruhan/AlignedReID-Re-Production-Pytorch/aligned_reid/model/Model.py:21: UserWarning: nn.init.constant is now deprecated in favor of nn.init.constant_.
+  init.constant(self.fc.bias, 0)

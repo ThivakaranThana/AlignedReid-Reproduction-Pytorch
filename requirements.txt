@@ -1,0 +1,18 @@
+opencv_python==3.2.0.7
+numpy==1.11.3
+scipy==0.18.1
+h5py==2.6.0
+tensorboardX==0.8
+# for tensorboard web server
+tensorflow==1.2.0
+
+python script/experiment/train.py \
+-d '(0,)' \
+--dataset market1501 \
+--normalize_feature false \
+-glw 1 \
+-llw 0 \
+-idlw 0 \
+--only_test true \
+--exp_dir experiment \
+--model_weight_file model_weight.pth

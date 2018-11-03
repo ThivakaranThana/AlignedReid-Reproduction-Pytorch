@@ -1,0 +1,5 @@
+global_query = tuple (1,2048)
+global_gallery = tuple (7,2048)
+
+local query = tuple (1,8,128)
+local gallery = tuple (7, 8, 128)

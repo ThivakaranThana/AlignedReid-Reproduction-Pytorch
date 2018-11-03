@@ -1,0 +1,47 @@
+/home/niruhan/AlignedReID-Re-Production-Pytorch/aligned_reid/model/Model.py:20: UserWarning: nn.init.normal is now deprecated in favor of nn.init.normal_.
+  init.normal(self.fc.weight, std=0.001)
+/home/niruhan/AlignedReID-Re-Production-Pytorch/aligned_reid/model/Model.py:21: UserWarning: nn.init.constant is now deprecated in favor of nn.init.constant_.
+  init.constant(self.fc.bias, 0)
+Traceback (most recent call last):
+  File "_pydevd_bundle/pydevd_cython.pyx", line 750, in _pydevd_bundle.pydevd_cython.PyDBFrame.trace_dispatch
+    self.do_wait_suspend(thread, frame, event, arg)
+  File "_pydevd_bundle/pydevd_cython.pyx", line 254, in _pydevd_bundle.pydevd_cython.PyDBFrame.do_wait_suspend
+    self._args[0].do_wait_suspend(*args, **kwargs)
+  File "/home/niruhan/PyCharm/pycharm-community-2018.2.1/helpers/pydev/pydevd.py", line 812, in do_wait_suspend
+    time.sleep(0.01)
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/home/niruhan/PyCharm/pycharm-community-2018.2.1/helpers/pydev/pydevd.py", line 1664, in <module>
+    main()
+  File "/home/niruhan/PyCharm/pycharm-community-2018.2.1/helpers/pydev/pydevd.py", line 1658, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+  File "/home/niruhan/PyCharm/pycharm-community-2018.2.1/helpers/pydev/pydevd.py", line 1068, in run
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+  File "/home/niruhan/AlignedReID-Re-Production-Pytorch/script/my_codes/train.py", line 644, in <module>
+    main()
+  File "/home/niruhan/AlignedReID-Re-Production-Pytorch/script/my_codes/train.py", line 401, in main
+    test(load_model_weight=True)
+  File "/home/niruhan/AlignedReID-Re-Production-Pytorch/script/my_codes/train.py", line 388, in test
+    use_local_distance=True)
+  File "/home/niruhan/AlignedReID-Re-Production-Pytorch/aligned_reid/dataset/TestSet.py", line 360, in predict
+    local_feats[q_inds], local_feats[g_inds])
+  File "/home/niruhan/AlignedReID-Re-Production-Pytorch/aligned_reid/dataset/TestSet.py", line 339, in low_memory_local_dist
+    local_dist, x, y, 0, 0, x_num_splits, y_num_splits, verbose=True)
+  File "/home/niruhan/AlignedReID-Re-Production-Pytorch/aligned_reid/utils/distance.py", line 178, in low_memory_matrix_op
+    part_mat = func(part_x, part_y)
+  File "/home/niruhan/AlignedReID-Re-Production-Pytorch/aligned_reid/utils/distance.py", line 134, in local_dist
+    return serial_local_dist(x, y)
+  File "/home/niruhan/AlignedReID-Re-Production-Pytorch/aligned_reid/utils/distance.py", line 103, in serial_local_dist
+    a = meta_local_dist(x[i], y[j])
+  File "/home/niruhan/AlignedReID-Re-Production-Pytorch/aligned_reid/utils/distance.py", line 86, in meta_local_dist
+    dist = shortest_dist(dist_mat[np.newaxis])[0]
+  File "/home/niruhan/AlignedReID-Re-Production-Pytorch/aligned_reid/utils/distance.py", line 86, in meta_local_dist
+    dist = shortest_dist(dist_mat[np.newaxis])[0]
+  File "_pydevd_bundle/pydevd_cython.pyx", line 969, in _pydevd_bundle.pydevd_cython.SafeCallWrapper.__call__
+  File "_pydevd_bundle/pydevd_cython.pyx", line 515, in _pydevd_bundle.pydevd_cython.PyDBFrame.trace_dispatch
+  File "_pydevd_bundle/pydevd_cython.pyx", line 759, in _pydevd_bundle.pydevd_cython.PyDBFrame.trace_dispatch
+  File "_pydevd_bundle/pydevd_cython.pyx", line 750, in _pydevd_bundle.pydevd_cython.PyDBFrame.trace_dispatch
+  File "_pydevd_bundle/pydevd_cython.pyx", line 254, in _pydevd_bundle.pydevd_cython.PyDBFrame.do_wait_suspend
+  File "/home/niruhan/PyCharm/pycharm-community-2018.2.1/helpers/pydev/pydevd.py", line 812, in do_wait_suspend
+    time.sleep(0.01)
+KeyboardInterrupt

@@ -1,0 +1,3 @@
+python script/dataset/transform_market1501.py \
+--zip_file ~/Dataset/custom_input/custom_input.zip \
+--save_dir ~/Dataset/custom_input
