@@ -148,17 +148,17 @@ if __name__ == '__main__':
     odapi = DetectorAPI(path_to_ckpt=model_path)
     threshold = 0.7
     # Open the first webcame device
-    capture = cv2.VideoCapture('Athar.avi')
+    capture = cv2.VideoCapture('custom_video/2people.avi')
     # Create two opencv named windows
-    cv2.namedWindow("base-image", cv2.WINDOW_AUTOSIZE)
+    #cv2.namedWindow("base-image", cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow("result-image", cv2.WINDOW_AUTOSIZE)
 
     # Position the windows next to eachother
-    cv2.moveWindow("base-image", 0, 100)
+    #cv2.moveWindow("base-image", 0, 100)
     cv2.moveWindow("result-image", 400, 100)
 
     # Start the window thread for the two windows we are using
-    cv2.startWindowThread()
+    #cv2.startWindowThread()
 
     # The color of the rectangle we draw around the face
     rectangleColor = (0, 165, 255)
@@ -172,11 +172,11 @@ if __name__ == '__main__':
     faceNames = {}
 
     try:
-        n=1
         while True:
             # Retrieve the latest image from the webcam
             rc, fullSizeBaseImage = capture.read()
-
+            # height, width, channels = fullSizeBaseImage.shape
+            # print height, width
              # Resize the image to 320x240
             baseImage = cv2.resize(fullSizeBaseImage, (1280, 720))
 
@@ -189,7 +189,7 @@ if __name__ == '__main__':
             # Result image is the image we will show the user, which is a
             # combination of the original image from the webcam and the
             # overlayed rectangle for the largest face
-            #resultImage = baseImage.copy()
+            resultImage = baseImage.copy()
 
                 # STEPS:
                 # * Update all trackers and remove the ones that are not
@@ -332,20 +332,25 @@ if __name__ == '__main__':
                 t_w = int(tracked_position.width())
                 t_h = int(tracked_position.height())
 
-                cv2.rectangle(baseImage, (t_x, t_y),
-                              (t_x + t_w, t_y + t_h),
-                              rectangleColor, 2)
+                # cv2.rectangle(resultImage, (t_x, t_y),
+                #               (t_x + t_w, t_y + t_h),
+                #               rectangleColor, 2)
+                #person_bounding_box = resultImage[t_y:(t_y+t_h), t_x:(t_x+t_w)]
+                #cv2.imshow("person", person_bounding_box)
 
                 if fid in faceNames.keys():
-                    cv2.putText(baseImage, faceNames[fid],
-                                (int(t_x + t_w / 2), int(t_y)),
-                            cv2.FONT_HERSHEY_SIMPLEX,
-                                0.5, (255, 255, 255), 2)
-                else:
-                    cv2.putText(baseImage, "Detecting...",
-                                (int(t_x + t_w / 2), int(t_y)),
-                                cv2.FONT_HERSHEY_SIMPLEX,
-                                0.5, (255, 255, 255), 2)
+                    # cv2.putText(resultImage, faceNames[fid],
+                    #             (int(t_x + t_w / 2), int(t_y)),
+                    #         cv2.FONT_HERSHEY_SIMPLEX,
+                    #             0.5, (255, 255, 255), 2)
+                    person_bounding_box = resultImage[t_y:(t_y + t_h), t_x:(t_x + t_w)]
+                    cv2.imwrite(faceNames[fid]+"frame_no"+ str(frameCounter)+".jpg", person_bounding_box)
+                #else:
+
+                    # cv2.putText(resultImage, "Detecting...",
+                    #             (int(t_x + t_w / 2), int(t_y)),
+                    #             cv2.FONT_HERSHEY_SIMPLEX,
+                    #             0.5, (255, 255, 255), 2)
 
             # Since we want to show something larger on the screen than the
                 # original 320x240, we resize the image again
@@ -354,14 +359,12 @@ if __name__ == '__main__':
                 # of the baseimage and make the result image a copy of this large
                 # base image and use the scaling factor to draw the rectangle
                 # at the right coordinates.
-                largeResult = cv2.resize(baseImage,
-                                         (OUTPUT_SIZE_WIDTH, OUTPUT_SIZE_HEIGHT))
+                #largeResult = cv2.resize(resultImage,
+#                                         (OUTPUT_SIZE_WIDTH, OUTPUT_SIZE_HEIGHT))
 
                 # Finally, we want to show the images on the screen
             #cv2.imshow("base-image", baseImage)
-            #cv2.imshow("result-image", largeResult)
-            cv2.imwrite("result"+str(n)+".jpg",largeResult)
-            n=n+1
+            #cv2.imshow("result-image", resultImage)
 
 
 
