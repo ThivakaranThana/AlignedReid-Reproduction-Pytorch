@@ -287,16 +287,16 @@ if __name__ == "__main__":
     odapi = DetectorAPI(path_to_ckpt=model_path)
     threshold = 0.7
     #cap = cv2.VideoCapture('/home/niruhan/Dataset/custom_video/vedha.mov')
-    cap = cv2.VideoCapture('/path/to/input/video')
+    cap = cv2.VideoCapture('Athar.avi')
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
 
     # connect to socket
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(('192.168.8.100', 8485))
-    connection = client_socket.makefile('wb')
+    #client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #client_socket.connect(('192.168.8.100', 8485))
+    #connection = client_socket.makefile('wb')
 
     # initialize our centroid tracker and frame dimensions
-    ct = CentroidTracker()
+    #ct = CentroidTracker()
 
     # img = cv2.imread('my_images/pedestrians.jpg')
 
@@ -314,11 +314,11 @@ if __name__ == "__main__":
     #
     # cv2.imshow("preview", img)
     # key = cv2.waitKey(0)
-
+    n=0
     while True:
         r, img = cap.read()
         img = cv2.resize(img, (1280, 720))
-        # cv2.imwrite("comparison", img)
+        #cv2.imwrite("comparison.jpg", img)
 
         boxes, scores, classes, num = odapi.processFrame(img)
 
@@ -340,23 +340,28 @@ if __name__ == "__main__":
         #     tracker_input_rects.append()
 
         # Visualization of the results of a detection.
-
         for i in picks_from_nms:
+            if classes[i]==1 and scores[i] > threshold:
+                box=boxes[i]
+                person_bounding_box =img[box[0]:box[2], box[1]:box[3]]
+                cv2.imwrite("person"+str(n)+str(i)+".jpg", person_bounding_box)
+
+        #for i in picks_from_nms:
             # Class 1 represents human
-            if classes[i] == 1 and scores[i] > threshold:
-                box = boxes[i]
-                cv2.rectangle(img,(box[1],box[0]),(box[3],box[2]), (255,0,0),2)
+         #   if classes[i] == 1 and scores[i] > threshold:
+          #      box = boxes[i]
+           #     cv2.rectangle(img,(box[1],box[0]),(box[3],box[2]), (255,0,0),2)
 
-                person_bounding_box = img[box[0]:box[2], box[1]:box[3]]
+            #    person_bounding_box = img[box[0]:box[2], box[1]:box[3]]
 
-                result, frame = cv2.imencode('.jpg', person_bounding_box, encode_param)
-                data = pickle.dumps(frame, 0)
-                size = len(data)
+                #result, frame = cv2.imencode('.jpg', person_bounding_box, encode_param)
+                #data = pickle.dumps(frame, 0)
+                #size = len(data)
 
-                print("{}".format(size))
-                client_socket.sendall(struct.pack(">L", size) + data)
-                print "finished sending"
-
+                #print("{}".format(size))
+                #client_socket.sendall(struct.pack(">L", size) + data)
+                #print "finished sending"
+        n=n+1
         cv2.imshow("preview", img)
         key = cv2.waitKey(1)
         # raw_input("Press Enter to continue...")

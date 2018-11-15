@@ -132,11 +132,12 @@ if __name__ == "__main__":
     model_path = '../../faster_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb'
     odapi = DetectorAPI(path_to_ckpt=model_path)
     threshold = 0.7
-    # cap = cv2.VideoCapture('/path/to/input/video')
+    cap = cv2.VideoCapture('Athar.avi')
 
-    img = cv2.imread('my_images/manhattan.jpg')
+    img = cv2.imread('my_images/two_persons.jpg')
+    #r, img = cap.read()
+    #img = cv2.resize(img, (1280, 720))
 
-    # img = cv2.resize(cap, (1280, 720))
 
     boxes, scores, classes, num = odapi.processFrame(img)
 
@@ -158,12 +159,14 @@ if __name__ == "__main__":
             #cv2.circle(img, (box[1], box[0]), 5, (0, 255, 0), -1)
             #cv2.circle(img, (box[3], box[2]), 5, (255, 0, 0), -1)
        #    cv2.rectangle(img, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
+
     for i in picks_from_nms:
         if classes[i]==1 and scores[i] > threshold:
             box=boxes[i]
-            cv2.rectangle(img, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
+            person_bounding_box =img[box[0]:box[2], box[1]:box[3]]
+            cv2.imwrite("person"+str(i)+".jpg",person_bounding_box)
+            #cv2.rectangle(img, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
             
-
     #cv2.imshow("preview", img)
     cv2.imwrite("boundingbox.jpg", img)
     key = cv2.waitKey(0)
