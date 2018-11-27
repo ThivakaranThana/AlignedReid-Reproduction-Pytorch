@@ -147,8 +147,14 @@ if __name__ == '__main__':
     model_path = '../../faster_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb'
     odapi = DetectorAPI(path_to_ckpt=model_path)
     threshold = 0.7
+    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+
+    # connect to socket
+    # client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # client_socket.connect(('192.168.8.100', 8485))
+    # connection = client_socket.makefile('wb')
     # Open the first webcame device
-    capture = cv2.VideoCapture('custom_video/2people.avi')
+    capture = cv2.VideoCapture('custom_video/4 people.avi')
     # Create two opencv named windows
     #cv2.namedWindow("base-image", cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow("result-image", cv2.WINDOW_AUTOSIZE)
@@ -302,10 +308,15 @@ if __name__ == '__main__':
                         # Create and store the tracker
                         tracker = dlib.correlation_tracker()
                         tracker.start_track(baseImage,
-                                            dlib.rectangle(x1- 10,
-                                                           y1 - 20,
-                                                           x2 + 10,
-                                                           y2 + 20))
+                                              dlib.rectangle(x1- 10,
+                                                            y1 - 30,
+                                                            x2 + 10,
+                                                            y2 + 30))
+                        # tracker.start_track(baseImage,
+                        #                     dlib.rectangle(x1,
+                        #                                    y1 ,
+                        #                                    x2 ,
+                        #                                    y2))
 
                         faceTrackers[currentFaceID] = tracker
 
@@ -339,18 +350,38 @@ if __name__ == '__main__':
                 #cv2.imshow("person", person_bounding_box)
 
                 if fid in faceNames.keys():
-                    # cv2.putText(resultImage, faceNames[fid],
-                    #             (int(t_x + t_w / 2), int(t_y)),
-                    #         cv2.FONT_HERSHEY_SIMPLEX,
-                    #             0.5, (255, 255, 255), 2)
+                    cv2.putText(resultImage, faceNames[fid],
+                                 (int(t_x + t_w / 2), int(t_y)),
+                             cv2.FONT_HERSHEY_SIMPLEX,
+                                 0.5, (255, 255, 255), 2)
                     person_bounding_box = resultImage[t_y:(t_y + t_h), t_x:(t_x + t_w)]
-                    cv2.imwrite(faceNames[fid]+"frame_no"+ str(frameCounter)+".jpg", person_bounding_box)
-                #else:
+                    if (frameCounter % 5) == 0:
+                        cv2.imwrite(faceNames[fid]+"_frame_no"+ str(frameCounter)+".jpg", person_bounding_box)
+                    # result, frame = cv2.imencode('.jpg', person_bounding_box, encode_param)
+                    # data = pickle.dumps(frame, 0)
+                    # size = len(data)
+                    #
+                    # print("{}".format(size))
+                    # client_socket.sendall(struct.pack(">L", size) + data)
+                    # print "finished sending bounding box"
+                    # data1 = pickle.dumps(faceNames[fid], 0)
+                    # size1 = len(data1)
+                    # print("{}".format(size1))
+                    # client_socket.sendall(struct.pack(">L", size1) + data1)
+                    # print "finshed sending name of the bounding box"
+                    # data2 = pickle.dumps(frameCounter, 0)
+                    # size2 = len(data2)
+                    # print("{}".format(size2))
+                    # client_socket.sendall(struct.pack(">L", size2) + data2)
+                    # print "finshed sending frame no of the bounding box"
 
-                    # cv2.putText(resultImage, "Detecting...",
-                    #             (int(t_x + t_w / 2), int(t_y)),
-                    #             cv2.FONT_HERSHEY_SIMPLEX,
-                    #             0.5, (255, 255, 255), 2)
+
+                else:
+
+                     cv2.putText(resultImage, "Detecting...",
+                                 (int(t_x + t_w / 2), int(t_y)),
+                                 cv2.FONT_HERSHEY_SIMPLEX,
+                                 0.5, (255, 255, 255), 2)
 
             # Since we want to show something larger on the screen than the
                 # original 320x240, we resize the image again
