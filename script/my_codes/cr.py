@@ -11,7 +11,9 @@ import pickle
 from PIL import Image
 from scipy.spatial import distance as dist
 from collections import OrderedDict
-
+import paramiko
+import os,sys,cv2,random,datetime
+from scp import SCPClient, SCPException, put, get,asbytes
 
 #The deisred output width and height
 OUTPUT_SIZE_WIDTH = 775
@@ -142,6 +144,14 @@ def doRecognizePerson(faceNames, fid):
     faceNames[ fid ] = "Person " + str(fid)
 
 
+def createSSHClient(server, port, user, password):
+    client = paramiko.SSHClient()
+    client.load_system_host_keys()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(server, port, user, password)
+    return client
+
+
 if __name__ == '__main__':
 
     model_path = '../../faster_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb'
@@ -154,7 +164,8 @@ if __name__ == '__main__':
     # client_socket.connect(('192.168.8.100', 8485))
     # connection = client_socket.makefile('wb')
     # Open the first webcame device
-    capture = cv2.VideoCapture('custom_video/4 people.avi')
+    capture = cv2.VideoCapture('custom_video/test2.mp4')
+
     # Create two opencv named windows
     #cv2.namedWindow("base-image", cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow("result-image", cv2.WINDOW_AUTOSIZE)
@@ -184,7 +195,11 @@ if __name__ == '__main__':
             # height, width, channels = fullSizeBaseImage.shape
             # print height, width
              # Resize the image to 320x240
-            baseImage = cv2.resize(fullSizeBaseImage, (1280, 720))
+            # (h,w) = fullSizeBaseImage.shape[:2]
+            # M=cv2.getRotationMatrix2D((w/2,h/2),-90,1)
+            # baseImage=cv2.warpAffine(fullSizeBaseImage,M,(h,w))
+            #baseImage = cv2.resize(fullSizeBaseImage, (1280, 720))
+            baseImage=fullSizeBaseImage
 
             # Check if a key was pressed and if it was Q, then break
             # from the infinite loop
@@ -307,16 +322,16 @@ if __name__ == '__main__':
 
                         # Create and store the tracker
                         tracker = dlib.correlation_tracker()
-                        tracker.start_track(baseImage,
-                                              dlib.rectangle(x1- 10,
-                                                            y1 - 30,
-                                                            x2 + 10,
-                                                            y2 + 30))
                         # tracker.start_track(baseImage,
-                        #                     dlib.rectangle(x1,
-                        #                                    y1 ,
-                        #                                    x2 ,
-                        #                                    y2))
+                        #                       dlib.rectangle(x1-10
+                        #                                     y1 - 30,
+                        #                                     x2 + 10,
+                        #                                     y2 + 30))
+                        tracker.start_track(baseImage,
+                                            dlib.rectangle(x1,
+                                                           y1 ,
+                                                           x2 ,
+                                                           y2))
 
                         faceTrackers[currentFaceID] = tracker
 
@@ -346,17 +361,21 @@ if __name__ == '__main__':
                 # cv2.rectangle(resultImage, (t_x, t_y),
                 #               (t_x + t_w, t_y + t_h),
                 #               rectangleColor, 2)
-                #person_bounding_box = resultImage[t_y:(t_y+t_h), t_x:(t_x+t_w)]
-                #cv2.imshow("person", person_bounding_box)
-
+                # person_bounding_box = resultImage[t_y:(t_y+t_h), t_x:(t_x+t_w)]
+                # cv2.imshow("person", person_bounding_box)
                 if fid in faceNames.keys():
-                    cv2.putText(resultImage, faceNames[fid],
-                                 (int(t_x + t_w / 2), int(t_y)),
-                             cv2.FONT_HERSHEY_SIMPLEX,
-                                 0.5, (255, 255, 255), 2)
-                    person_bounding_box = resultImage[t_y:(t_y + t_h), t_x:(t_x + t_w)]
-                    if (frameCounter % 5) == 0:
-                        cv2.imwrite(faceNames[fid]+"_frame_no"+ str(frameCounter)+".jpg", person_bounding_box)
+                    # cv2.putText(resultImage, faceNames[fid],
+                    #              (int(t_x + t_w / 2), int(t_y)),
+                    #          cv2.FONT_HERSHEY_SIMPLEX,
+                    #              0.5, (255, 255, 255), 2)
+                    person_bounding_box = resultImage[t_y:(t_y + t_h+20), t_x:(t_x + t_w+20)]
+                    if (frameCounter % 10) == 0:
+                        if (t_x > 0) & (t_y > 0):
+                            image = faceNames[fid]+"_frame_no"+ str(frameCounter)+".jpg";
+                            cv2.imwrite(image, person_bounding_box)
+                            # ssh = createSSHClient("10.12.67.36", 22, "madhushanb", "group10@fyp")
+                            # scp = SCPClient(ssh.get_transport())
+                            # scp.put(faceNames[fid]+"_frame_no"+ str(frameCounter)+".jpg", '/home/madhushanb/sphereface/bounding_Box_ID', True)
                     # result, frame = cv2.imencode('.jpg', person_bounding_box, encode_param)
                     # data = pickle.dumps(frame, 0)
                     # size = len(data)
