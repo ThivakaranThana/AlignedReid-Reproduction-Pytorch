@@ -164,7 +164,7 @@ if __name__ == '__main__':
     # client_socket.connect(('192.168.8.100', 8485))
     # connection = client_socket.makefile('wb')
     # Open the first webcame device
-    capture = cv2.VideoCapture('custom_video/2people.avi')
+    capture = cv2.VideoCapture('custom_video/test2.mp4')
 
     # Create two opencv named windows
     #cv2.namedWindow("base-image", cv2.WINDOW_AUTOSIZE)
@@ -234,7 +234,7 @@ if __name__ == '__main__':
 
                 # If the tracking quality is good enough, we must delete
                 # this tracker
-                if trackingQuality < 7:
+                if trackingQuality < 8:
                     fidsToDelete.append(fid)
 
             for fid in fidsToDelete:
@@ -243,7 +243,7 @@ if __name__ == '__main__':
 
             # Every 10 frames, we will have to determine which faces
             # are present in the frame
-            if (frameCounter % 10) == 0:
+            if (frameCounter % 25) == 0:
                 boxes, scores, classes, num = odapi.processFrame(baseImage)
 
                 nms_input = np.empty((len(boxes), 5))
@@ -369,13 +369,13 @@ if __name__ == '__main__':
                     #          cv2.FONT_HERSHEY_SIMPLEX,
                     #              0.5, (255, 255, 255), 2)
                     person_bounding_box = resultImage[t_y:(t_y + t_h+20), t_x:(t_x + t_w+20)]
-                    if (frameCounter % 10) == 0:
+                    if (frameCounter % 12) == 0:
                         if (t_x > 0) & (t_y > 0):
                             image = faceNames[fid]+"_frame_no"+ str(frameCounter)+".jpg";
                             cv2.imwrite("query/"+str(image), person_bounding_box)
                             # ssh = createSSHClient("10.12.67.36", 22, "madhushanb", "group10@fyp")
                             # scp = SCPClient(ssh.get_transport())
-                            # scp.put(faceNames[fid]+"_frame_no"+ str(frameCounter)+".jpg", '/home/madhushanb/sphereface/bounding_Box_ID', True)
+                            # scp.put("query/"+str(image), '/home/madhushanb/sphereface/bounding_Box_ID', True)
                     # result, frame = cv2.imencode('.jpg', person_bounding_box, encode_param)
                     # data = pickle.dumps(frame, 0)
                     # size = len(data)
