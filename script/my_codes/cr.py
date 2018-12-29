@@ -164,15 +164,15 @@ if __name__ == '__main__':
     # client_socket.connect(('192.168.8.100', 8485))
     # connection = client_socket.makefile('wb')
     # Open the first webcame device
-    capture = cv2.VideoCapture('custom_video/test2.mp4')
+    capture = cv2.VideoCapture('custom_video/2people.avi')
 
     # Create two opencv named windows
     #cv2.namedWindow("base-image", cv2.WINDOW_AUTOSIZE)
-    cv2.namedWindow("result-image", cv2.WINDOW_AUTOSIZE)
+    #cv2.namedWindow("result-image", cv2.WINDOW_AUTOSIZE)
 
     # Position the windows next to eachother
     #cv2.moveWindow("base-image", 0, 100)
-    cv2.moveWindow("result-image", 400, 100)
+    #cv2.moveWindow("result-image", 400, 100)
 
     # Start the window thread for the two windows we are using
     #cv2.startWindowThread()
@@ -372,7 +372,7 @@ if __name__ == '__main__':
                     if (frameCounter % 10) == 0:
                         if (t_x > 0) & (t_y > 0):
                             image = faceNames[fid]+"_frame_no"+ str(frameCounter)+".jpg";
-                            cv2.imwrite(image, person_bounding_box)
+                            cv2.imwrite("query/"+str(image), person_bounding_box)
                             # ssh = createSSHClient("10.12.67.36", 22, "madhushanb", "group10@fyp")
                             # scp = SCPClient(ssh.get_transport())
                             # scp.put(faceNames[fid]+"_frame_no"+ str(frameCounter)+".jpg", '/home/madhushanb/sphereface/bounding_Box_ID', True)
@@ -426,7 +426,7 @@ if __name__ == '__main__':
         pass
 
     # Destroy any OpenCV windows and exit the application
-    cv2.destroyAllWindows()
+    #cv2.destroyAllWindows()
     exit(0)
 
 
