@@ -356,9 +356,9 @@ if __name__ == '__main__':
                         if (t_x > 0) & (t_y > 0):
                             image = faceNames[fid]+"_frame_no"+ str(frameCounter)+".jpg";
                             cv2.imwrite("query/"+str(image), person_bounding_box)
-                            # ssh = createSSHClient("10.12.67.36", 22, "madhushanb", "group10@fyp")
-                            # scp = SCPClient(ssh.get_transport())
-                            # scp.put("query/"+str(image), '/home/madhushanb/sphereface/bounding_Box_ID', True)
+                            ssh = createSSHClient("10.12.67.36", 22, "madhushanb", "group10@fyp")
+                            scp = SCPClient(ssh.get_transport())
+                            scp.put("query/"+str(image), '/home/madhushanb/sphereface/bounding_Box_ID', True)
                     # result, frame = cv2.imencode('.jpg', person_bounding_box, encode_param)
                     # data = pickle.dumps(frame, 0)
                     # size = len(data)
@@ -405,8 +405,9 @@ if __name__ == '__main__':
         # To ensure we can also deal with the user pressing Ctrl-C in the console
         # we have to check for the KeyboardInterrupt exception and break out of
         # the main loop
-    except KeyboardInterrupt as e:
+    except AttributeError:
         pass
+
 
     # Destroy any OpenCV windows and exit the application
     #cv2.destroyAllWindows()
