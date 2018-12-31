@@ -164,7 +164,7 @@ if __name__ == '__main__':
     # client_socket.connect(('192.168.8.100', 8485))
     # connection = client_socket.makefile('wb')
     # Open the first webcame device
-    capture = cv2.VideoCapture('custom_video/test5.mp4')
+    capture = cv2.VideoCapture('custom_video/test7.mp4')
 
     # Create two opencv named windows
     #cv2.namedWindow("base-image", cv2.WINDOW_AUTOSIZE)
@@ -243,8 +243,12 @@ if __name__ == '__main__':
 
             # Every 10 frames, we will have to determine which faces
             # are present in the frame
-            if (frameCounter % 20) == 0:
+            if (frameCounter % 10) == 0:
                 boxes, scores, classes, num = odapi.processFrame(baseImage)
+                # for i in range(len(boxes)):
+                #     box = boxes[i]
+                #     person_bounding_box2 = baseImage[box[0]:box[2], box[1]:box[3]]
+                #     cv2.imwrite("query2/person_" + str(frameCounter) + "_" + str(i) + ".jpg", person_bounding_box2)
 
                 nms_input = np.empty((len(boxes), 5))
 
@@ -263,8 +267,11 @@ if __name__ == '__main__':
                 for i in picks_from_nms:
                     if classes[i] == 1 and scores[i] > threshold:
                         persons.append(boxes[i])
-
+                count = 0
                 for (y1, x1, y2, x2) in persons:
+                    # person_bounding_box1 = resultImage[y1:y2, x1:x2]
+                    # cv2.imwrite("query1/person_" + str(frameCounter) + str(count)+".jpg", person_bounding_box1)
+                    # count = count +1
                     # calculate the centerpoint
                     x_bar = (x1+ x2)/2.0
                     y_bar = (y1 +y2)/2.0
@@ -298,6 +305,10 @@ if __name__ == '__main__':
                                 (x1<= t_x_bar <= x2) and
                                 (y1 <= t_y_bar <= y2)):
                             matchedFid = fid
+                            person_bounding_box = resultImage[y1:y2, x1:x2]
+                            image = faceNames[fid] + "_frame_no" + str(frameCounter) + ".jpg";
+                            cv2.imwrite("query/" + str(image), person_bounding_box)
+
 
                     # If no matched fid, then we have to create a new tracker
                     if matchedFid is None:
@@ -306,7 +317,7 @@ if __name__ == '__main__':
                         # Create and store the tracker
                         tracker = dlib.correlation_tracker()
                         # tracker.start_track(baseImage,
-                        #                       dlib.rectangle(x1-10
+                        #                       dlib.rectangle(x1-10,
                         #                                     y1 - 30,
                         #                                     x2 + 10,
                         #                                     y2 + 30))
@@ -333,57 +344,58 @@ if __name__ == '__main__':
                 # (i.e. the recognition thread is finished), we print the name
                 # of the person, otherwise the message indicating we are detecting
                 # the name of the person
-            for fid in faceTrackers.keys():
-                tracked_position = faceTrackers[fid].get_position()
 
-                t_x = int(tracked_position.left())
-                t_y = int(tracked_position.top())
-                t_w = int(tracked_position.width())
-                t_h = int(tracked_position.height())
-
-                # cv2.rectangle(resultImage, (t_x, t_y),
-                #               (t_x + t_w, t_y + t_h),
-                #               rectangleColor, 2)
-                # person_bounding_box = resultImage[t_y:(t_y+t_h), t_x:(t_x+t_w)]
-                # cv2.imshow("person", person_bounding_box)
-                if fid in faceNames.keys():
-                    # cv2.putText(resultImage, faceNames[fid],
-                    #              (int(t_x + t_w / 2), int(t_y)),
-                    #          cv2.FONT_HERSHEY_SIMPLEX,
-                    #              0.5, (255, 255, 255), 2)
-                    person_bounding_box = resultImage[t_y:(t_y + t_h+20), t_x:(t_x + t_w+20)]
-                    if (frameCounter % 10) == 0:
-                        if (t_x > 0) & (t_y > 0):
-                            image = faceNames[fid]+"_frame_no"+ str(frameCounter)+".jpg";
-                            cv2.imwrite("query/"+str(image), person_bounding_box)
-                            ssh = createSSHClient("10.12.67.36", 22, "madhushanb", "group10@fyp")
-                            scp = SCPClient(ssh.get_transport())
-                            scp.put("query/"+str(image), '/home/madhushanb/sphereface/bounding_Box_ID', True)
-                    # result, frame = cv2.imencode('.jpg', person_bounding_box, encode_param)
-                    # data = pickle.dumps(frame, 0)
-                    # size = len(data)
-                    #
-                    # print("{}".format(size))
-                    # client_socket.sendall(struct.pack(">L", size) + data)
-                    # print "finished sending bounding box"
-                    # data1 = pickle.dumps(faceNames[fid], 0)
-                    # size1 = len(data1)
-                    # print("{}".format(size1))
-                    # client_socket.sendall(struct.pack(">L", size1) + data1)
-                    # print "finshed sending name of the bounding box"
-                    # data2 = pickle.dumps(frameCounter, 0)
-                    # size2 = len(data2)
-                    # print("{}".format(size2))
-                    # client_socket.sendall(struct.pack(">L", size2) + data2)
-                    # print "finshed sending frame no of the bounding box"
-
-
-                else:
-
-                     cv2.putText(resultImage, "Detecting...",
-                                 (int(t_x + t_w / 2), int(t_y)),
-                                 cv2.FONT_HERSHEY_SIMPLEX,
-                                 0.5, (255, 255, 255), 2)
+            # for fid in faceTrackers.keys():
+            #     tracked_position = faceTrackers[fid].get_position()
+            #
+            #     t_x = int(tracked_position.left())
+            #     t_y = int(tracked_position.top())
+            #     t_w = int(tracked_position.width())
+            #     t_h = int(tracked_position.height())
+            #
+            #     # cv2.rectangle(resultImage, (t_x, t_y),
+            #     #               (t_x + t_w, t_y + t_h),
+            #     #               rectangleColor, 2)
+            #     # person_bounding_box = resultImage[t_y:(t_y+t_h), t_x:(t_x+t_w)]
+            #     # cv2.imshow("person", person_bounding_box)
+            #     if fid in faceNames.keys():
+            #         # cv2.putText(resultImage, faceNames[fid],
+            #         #              (int(t_x + t_w / 2), int(t_y)),
+            #         #          cv2.FONT_HERSHEY_SIMPLEX,
+            #         #              0.5, (255, 255, 255), 2)
+            #         person_bounding_box = resultImage[t_y:(t_y + t_h+50), t_x:(t_x + t_w+20)]
+            #         if (frameCounter % 10) == 0:
+            #             if (t_x > 0) & (t_y > 0):
+            #                 image = faceNames[fid]+"_frame_no"+ str(frameCounter)+".jpg";
+            #                 cv2.imwrite("query/"+str(image), person_bounding_box)
+            #                 # ssh = createSSHClient("10.12.67.36", 22, "madhushanb", "group10@fyp")
+            #                 # scp = SCPClient(ssh.get_transport())
+            #                 # scp.put("query/"+str(image), '/home/madhushanb/sphereface/bounding_Box_ID', True)
+            #         # result, frame = cv2.imencode('.jpg', person_bounding_box, encode_param)
+            #         # data = pickle.dumps(frame, 0)
+            #         # size = len(data)
+            #         #
+            #         # print("{}".format(size))
+            #         # client_socket.sendall(struct.pack(">L", size) + data)
+            #         # print "finished sending bounding box"
+            #         # data1 = pickle.dumps(faceNames[fid], 0)
+            #         # size1 = len(data1)
+            #         # print("{}".format(size1))
+            #         # client_socket.sendall(struct.pack(">L", size1) + data1)
+            #         # print "finshed sending name of the bounding box"
+            #         # data2 = pickle.dumps(frameCounter, 0)
+            #         # size2 = len(data2)
+            #         # print("{}".format(size2))
+            #         # client_socket.sendall(struct.pack(">L", size2) + data2)
+            #         # print "finshed sending frame no of the bounding box"
+            #
+            #
+            #     else:
+            #
+            #          cv2.putText(resultImage, "Detecting...",
+            #                      (int(t_x + t_w / 2), int(t_y)),
+            #                      cv2.FONT_HERSHEY_SIMPLEX,
+            #                      0.5, (255, 255, 255), 2)
 
             # Since we want to show something larger on the screen than the
                 # original 320x240, we resize the image again
