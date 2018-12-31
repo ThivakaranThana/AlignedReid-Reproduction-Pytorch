@@ -164,7 +164,7 @@ if __name__ == '__main__':
     # client_socket.connect(('192.168.8.100', 8485))
     # connection = client_socket.makefile('wb')
     # Open the first webcame device
-    capture = cv2.VideoCapture('custom_video/test2.mp4')
+    capture = cv2.VideoCapture('custom_video/test5.mp4')
 
     # Create two opencv named windows
     #cv2.namedWindow("base-image", cv2.WINDOW_AUTOSIZE)
@@ -195,11 +195,11 @@ if __name__ == '__main__':
             # height, width, channels = fullSizeBaseImage.shape
             # print height, width
              # Resize the image to 320x240
-            # (h,w) = fullSizeBaseImage.shape[:2]
-            # M=cv2.getRotationMatrix2D((w/2,h/2),-90,1)
-            # baseImage=cv2.warpAffine(fullSizeBaseImage,M,(h,w))
+            (h,w) = fullSizeBaseImage.shape[:2]
+            M=cv2.getRotationMatrix2D((w/2,h/2),-90,1)
+            baseImage=cv2.warpAffine(fullSizeBaseImage,M,(h,w))
             #baseImage = cv2.resize(fullSizeBaseImage, (1280, 720))
-            baseImage=fullSizeBaseImage
+            #baseImage=fullSizeBaseImage
 
             # Check if a key was pressed and if it was Q, then break
             # from the infinite loop
@@ -234,7 +234,7 @@ if __name__ == '__main__':
 
                 # If the tracking quality is good enough, we must delete
                 # this tracker
-                if trackingQuality < 8:
+                if trackingQuality < 7:
                     fidsToDelete.append(fid)
 
             for fid in fidsToDelete:
@@ -243,7 +243,7 @@ if __name__ == '__main__':
 
             # Every 10 frames, we will have to determine which faces
             # are present in the frame
-            if (frameCounter % 25) == 0:
+            if (frameCounter % 20) == 0:
                 boxes, scores, classes, num = odapi.processFrame(baseImage)
 
                 nms_input = np.empty((len(boxes), 5))
@@ -263,23 +263,6 @@ if __name__ == '__main__':
                 for i in picks_from_nms:
                     if classes[i] == 1 and scores[i] > threshold:
                         persons.append(boxes[i])
-
-
-
-                # For the face detection, we need to make use of a gray
-                    # colored image so we will convert the baseImage to a
-                    # gray-based image
-    #                gray = cv2.cvtColor(baseImage, cv2.COLOR_BGR2GRAY)
-                    # Now use the haar cascade detector to find all faces
-                    # in the image
-     #               faces = faceCascade.detectMultiScale(gray, 1.3, 5)
-
-                    # Loop over all faces and check if the area for this
-                    # face is the largest so far
-                    # We need to convert it to int here because of the
-                    # requirement of the dlib tracker. If we omit the cast to
-                    # int here, you will get cast errors since the detector
-                    # returns numpy.int32 and the tracker requires an int
 
                 for (y1, x1, y2, x2) in persons:
                     # calculate the centerpoint
@@ -369,7 +352,7 @@ if __name__ == '__main__':
                     #          cv2.FONT_HERSHEY_SIMPLEX,
                     #              0.5, (255, 255, 255), 2)
                     person_bounding_box = resultImage[t_y:(t_y + t_h+20), t_x:(t_x + t_w+20)]
-                    if (frameCounter % 12) == 0:
+                    if (frameCounter % 10) == 0:
                         if (t_x > 0) & (t_y > 0):
                             image = faceNames[fid]+"_frame_no"+ str(frameCounter)+".jpg";
                             cv2.imwrite("query/"+str(image), person_bounding_box)

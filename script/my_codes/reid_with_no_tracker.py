@@ -1,11 +1,16 @@
-import dlib
-import threading
 import numpy as np
 import tensorflow as tf
 import time
+import copy
 import paramiko
 import os,sys,cv2,random,datetime
-from reid_per_query import find_matching_id
+from torch.nn.parallel import DataParallel
+import torch.optim as optim
+import torch
+from feature_extraction import feature_extraction
+from finding_matching_id import find_matching_id
+from aligned_reid.model.Model import Model
+from aligned_reid.utils.utils import load_state_dict
 from scp import SCPClient, SCPException, put, get,asbytes
 #The deisred output width and height
 OUTPUT_SIZE_WIDTH = 775
@@ -132,13 +137,37 @@ def nms(boxes, overlap_threshold=0.2, mode='union'):
 
 if __name__ == '__main__':
 
+    local_conv_out_channels = 128
+    num_classes = 3
+    model = Model(local_conv_out_channels=local_conv_out_channels, num_classes=num_classes)
+    # Model wrapper
+    model_w = DataParallel(model)
+
+    base_lr = 2e-4
+    weight_decay = 0.0005
+    optimizer = optim.Adam(model.parameters(), lr=base_lr, weight_decay=weight_decay)
+
+    # Bind them together just to save some codes in the following usage.
+    modules_optims = [model, optimizer]
+
+    model_weight_file = '../../model_weight.pth'
+
+    map_location = (lambda storage, loc: storage)
+    sd = torch.load(model_weight_file, map_location=map_location)
+    load_state_dict(model, sd)
+    print('Loaded model weights from {}'.format(model_weight_file))
+##################################################################################################################
     model_path = '../../faster_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb'
     odapi = DetectorAPI(path_to_ckpt=model_path)
     threshold = 0.7
     capture = cv2.VideoCapture('custom_video/test2.mp4')
     frameCounter = 0
     f = open("result", "w")
-
+    global_features_list, local_features_list, name_list = feature_extraction(model)
+    print global_features_list[0]
+    print global_features_list[1]
+    print  global_features_list[2]
+    print global_features_list[3]
     try:
         while True:
             # Retrieve the latest image from the webcam
@@ -181,17 +210,18 @@ if __name__ == '__main__':
                         box = boxes[i]
                         person_bounding_box = baseImage[box[0]:box[2], box[1]:box[3]]
                         image = "person" + str(i)+'_frameNo_'+str(frameCounter) + '.jpg'
-                        cv2.imwrite("query/person" + str(i)+'_frameNo_'+str(frameCounter) +'.jpg', person_bounding_box)
-                        Id = find_matching_id(str(image))
+                        cv2.imwrite("bounding_boxes/query/person" + str(i)+'_frameNo_'+str(frameCounter) +'.jpg', person_bounding_box)
+                        global_features_list_copy = copy.deepcopy(global_features_list)
+                        local_features_list_copy = copy.deepcopy(local_features_list)
+                        Id = find_matching_id(global_features_list_copy,
+                                              local_features_list_copy, name_list, str(image), model)
                         f.write(Id+"\n")
-
-
-
-    except KeyboardInterrupt as e:
-        pass
-
-    # Destroy any OpenCV windows and exit the application
-
+    except TypeError:
+        print global_features_list[0]
+        print global_features_list[1]
+        print  global_features_list[2]
+        print global_features_list[3]
+        print 'finished processing'
 exit(0)
 
 

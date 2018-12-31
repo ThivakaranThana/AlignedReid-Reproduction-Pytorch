@@ -153,7 +153,8 @@ def set_devices(sys_device_ids):
   # Return wrappers.
   # Models and user defined Variables/Tensors would be transferred to the
   # first device.
-  device_id = 0 if len(sys_device_ids) > 0 else -1
+  #device_id = 0 if len(sys_device_ids) > 0 else -1
+  device_id = -1 if len(sys_device_ids) > 0 else 0
   TVT = TransferVarTensor(device_id)
   TMO = TransferModulesOptims(device_id)
   return TVT, TMO

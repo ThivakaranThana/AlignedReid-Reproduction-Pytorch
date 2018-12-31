@@ -43,10 +43,17 @@ def find_matching_id (string):
     global_features_list = []
     local_features_list = []
     global_dist = []
+    global_local_dist=[]
+    local_dist = []
     idlist = []
+
+    root_directory = './bounding_boxes/Dynamic_Database/'
+    name_list1= os.listdir(root_directory)
+    print name_list1
 
     for name in name_list:
         glist = []
+        llist =[]
         global_features_list = []
         gallery_global_features_list = []
         query_global_features_list = []
@@ -77,14 +84,15 @@ def find_matching_id (string):
                     # global_features_list.append(global_feat)
                     glist.append(global_feat)
                     # local_features_list.append(local_feat)
+                    llist.append(local_feat)
                     # idlist.append(name)
 
                     # Restore the model to its old train/eval mode.
                     model.train(old_train_eval_model)
                 else:
                     continue
-        #input_image = cv2.imread('bounding_boxes/Dynamic_Database/query/'+string)
-        input_image = cv2.imread('query/'+string)
+        input_image = cv2.imread('bounding_boxes/Dynamic_Database/query/'+string)
+        #input_image = cv2.imread('query/'+string)
         resized_image = cv2.resize(input_image, (128, 256))
 
         transposed = resized_image.transpose(2, 0, 1)
@@ -100,6 +108,7 @@ def find_matching_id (string):
         # global_features_list.append(global_feat)
         glist.append(global_feat)
         # local_features_list.append(local_feat)
+        llist.append(local_feat)
         # idlist.append(name)
 
         # Restore the model to its old train/eval mode.
@@ -112,25 +121,55 @@ def find_matching_id (string):
 
         if len(glist) >= 2:
             global_features_list = np.vstack((glist[0], glist[1]))
+            local_features_list = np.vstack((llist[0], llist[1]))
             for l in range(len(glist) - 2):
                 global_features_list = np.vstack((global_features_list, glist[l + 2]))
+                local_features_list = np.vstack((local_features_list, llist[l+2]))
 
             global_features_list = normalize(global_features_list, axis=1)
             gallery_global_features_list = global_features_list[0:len(glist) - 1]
             query_global_features_list = np.vstack((global_features_list[-1])).T
 
+            local_features_list = normalize(local_features_list, axis=-1)
+            gallery_local_features_list = local_features_list[0:len(glist) - 1]
+            query_local_features_list = np.expand_dims(local_features_list[-1], axis=0)
+
             # query-gallery distance using global distance
             global_q_g_dist = compute_dist(query_global_features_list, gallery_global_features_list, type='euclidean')
-            # print global_q_g_dist
-            index_min = np.argmin(global_q_g_dist)
-            # print index_min
-            global_dist.append(global_q_g_dist[0][index_min])
-            # print global_dist
+            #print global_q_g_dist
+
+            # query-gallery distance using local distance
+            local_q_g_dist = parallel_local_dist(query_local_features_list, gallery_local_features_list)
+            #print local_q_g_dist
+            # #
+
+            index_min_g = np.argmin(global_q_g_dist)
+            #print index_min_g
+
+            index_min_l = np.argmin(local_q_g_dist)
+            #print index_min_l
+
+            global_dist.append(global_q_g_dist[0][index_min_g])
+            local_dist.append(local_q_g_dist[0][index_min_l])
+
+            #print global_dist
+            #print local_dist
+
+            global_local_distance = global_q_g_dist + local_q_g_dist
+            index_min_g_l = np.argmin(global_local_distance)
+            global_local_dist.append(global_local_distance[0][index_min_g_l])
             idlist.append(name)
-    ans = np.argmin(global_dist)
+
+    ans = np.argmin(global_local_dist)
     matchedId = 'query' + string + ' is ' + idlist[ans]
+    print 'global', global_dist
+    print 'local', local_dist
+    print  'global_local', global_local_dist
 
     return matchedId
 
+
+Id = find_matching_id('person3.jpg')
+print(Id)
 
 
