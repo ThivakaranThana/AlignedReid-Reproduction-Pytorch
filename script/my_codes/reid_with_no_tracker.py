@@ -160,14 +160,14 @@ if __name__ == '__main__':
     model_path = '../../faster_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb'
     odapi = DetectorAPI(path_to_ckpt=model_path)
     threshold = 0.7
-    capture = cv2.VideoCapture('custom_video/test2.mp4')
+    capture = cv2.VideoCapture('custom_video/test5.mp4')
     frameCounter = 0
     f = open("result", "w")
     global_features_list, local_features_list, name_list = feature_extraction(model)
-    print global_features_list[0]
-    print global_features_list[1]
-    print  global_features_list[2]
-    print global_features_list[3]
+    # print global_features_list[0]
+    # print global_features_list[1]
+    # print  global_features_list[2]
+    # print global_features_list[3]
     try:
         while True:
             # Retrieve the latest image from the webcam
@@ -175,11 +175,11 @@ if __name__ == '__main__':
             # height, width, channels = fullSizeBaseImage.shape
             # print height, width
              # Resize the image to 320x240
-            # (h,w) = fullSizeBaseImage.shape[:2]
-            # M=cv2.getRotationMatrix2D((w/2,h/2),-90,1)
-            # baseImage=cv2.warpAffine(fullSizeBaseImage,M,(h,w))
+            (h,w) = fullSizeBaseImage.shape[:2]
+            M=cv2.getRotationMatrix2D((w/2,h/2),-90,1)
+            baseImage=cv2.warpAffine(fullSizeBaseImage,M,(h,w))
             #baseImage = cv2.resize(fullSizeBaseImage, (1280, 720))
-            baseImage=fullSizeBaseImage
+            #baseImage=fullSizeBaseImage
 
             # Check if a key was pressed and if it was Q, then break
             # from the infinite loop
@@ -206,6 +206,8 @@ if __name__ == '__main__':
                 picks_from_nms = nms(nms_input)
 
                 for i in picks_from_nms:
+                    global_features_list_copy = []
+                    local_features_list_copy = []
                     if classes[i] == 1 and scores[i] > threshold:
                         box = boxes[i]
                         person_bounding_box = baseImage[box[0]:box[2], box[1]:box[3]]
@@ -217,11 +219,10 @@ if __name__ == '__main__':
                                               local_features_list_copy, name_list, str(image), model)
                         f.write(Id+"\n")
     except TypeError:
-        print global_features_list[0]
-        print global_features_list[1]
-        print  global_features_list[2]
-        print global_features_list[3]
         print 'finished processing'
+    except AttributeError:
+        print 'finished processing'
+        pass
 exit(0)
 
 

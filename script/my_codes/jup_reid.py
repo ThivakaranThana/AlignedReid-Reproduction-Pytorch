@@ -1322,7 +1322,6 @@ if __name__ == '__main__':
         while True:
             # Retrieve the latest image from the webcam
             rc, fullSizeBaseImage = capture.read()
-            # height, width, channels = fullSizeBaseImage.shape
             # print height, width
              # Resize the image to 320x240
             (h,w) = fullSizeBaseImage.shape[:2]
@@ -1339,7 +1338,7 @@ if __name__ == '__main__':
             frameCounter += 1
             # Every 10 frames, we will have to determine which faces
             # are present in the frame
-            if (frameCounter % 50) == 0:
+            if (frameCounter % 10) == 0:
                 boxes, scores, classes, num = odapi.processFrame(baseImage)
 
                 nms_input = np.empty((len(boxes), 5))
@@ -1356,6 +1355,8 @@ if __name__ == '__main__':
                 picks_from_nms = nms(nms_input)
 
                 for i in picks_from_nms:
+                    global_features_list_copy = []
+                    local_features_list_copy = []
                     if classes[i] == 1 and scores[i] > threshold:
                         box = boxes[i]
                         person_bounding_box = baseImage[box[0]:box[2], box[1]:box[3]]
@@ -1368,4 +1369,7 @@ if __name__ == '__main__':
                         f.write(Id+"\n")
     except TypeError:
         print ('finished processing')
+    except AttributeError:
+        print('finished processing')
+
 exit(0)

@@ -164,7 +164,7 @@ if __name__ == '__main__':
     # client_socket.connect(('192.168.8.100', 8485))
     # connection = client_socket.makefile('wb')
     # Open the first webcame device
-    capture = cv2.VideoCapture('custom_video/test7.mp4')
+    capture = cv2.VideoCapture('custom_video/vedha.mov')
 
     # Create two opencv named windows
     #cv2.namedWindow("base-image", cv2.WINDOW_AUTOSIZE)
@@ -195,17 +195,17 @@ if __name__ == '__main__':
             # height, width, channels = fullSizeBaseImage.shape
             # print height, width
              # Resize the image to 320x240
-            (h,w) = fullSizeBaseImage.shape[:2]
-            M=cv2.getRotationMatrix2D((w/2,h/2),-90,1)
-            baseImage=cv2.warpAffine(fullSizeBaseImage,M,(h,w))
+            # (h,w) = fullSizeBaseImage.shape[:2]
+            # M=cv2.getRotationMatrix2D((w/2,h/2),-90,1)
+            # baseImage=cv2.warpAffine(fullSizeBaseImage,M,(h,w))
             #baseImage = cv2.resize(fullSizeBaseImage, (1280, 720))
-            #baseImage=fullSizeBaseImage
+            baseImage=fullSizeBaseImage
 
             # Check if a key was pressed and if it was Q, then break
             # from the infinite loop
-            pressedKey = cv2.waitKey(2)
-            if pressedKey == ord('Q'):
-                break
+            # pressedKey = cv2.waitKey(2)
+            # if pressedKey == ord('Q'):
+            #     break
 
             # Result image is the image we will show the user, which is a
             # combination of the original image from the webcam and the

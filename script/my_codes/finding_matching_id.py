@@ -16,26 +16,6 @@ from feature_extraction import feature_extraction
 
 
 def find_matching_id (global_features_list, local_features_list, name_list, string, model):
-    # local_conv_out_channels = 128
-    # num_classes = 3
-    #
-    # model = Model(local_conv_out_channels=local_conv_out_channels, num_classes=num_classes)
-    # # Model wrapper
-    # model_w = DataParallel(model)
-    #
-    # base_lr = 2e-4
-    # weight_decay = 0.0005
-    # optimizer = optim.Adam(model.parameters(), lr=base_lr, weight_decay=weight_decay)
-    #
-    # # Bind them together just to save some codes in the following usage.
-    # modules_optims = [model, optimizer]
-    #
-    # model_weight_file = '../../model_weight.pth'
-    #
-    # map_location = (lambda storage, loc: storage)
-    # sd = torch.load(model_weight_file, map_location=map_location)
-    # load_state_dict(model, sd)
-    # print('Loaded model weights from {}'.format(model_weight_file))
 
     sys_device_ids = (0,)
 
