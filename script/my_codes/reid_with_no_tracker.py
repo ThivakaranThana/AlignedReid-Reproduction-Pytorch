@@ -12,7 +12,11 @@ from finding_matching_id import find_matching_id
 from aligned_reid.model.Model import Model
 from aligned_reid.utils.utils import load_state_dict
 from scp import SCPClient, SCPException, put, get,asbytes
+import os,sys,cv2,random,datetime
+
+
 #The deisred output width and height
+
 OUTPUT_SIZE_WIDTH = 775
 OUTPUT_SIZE_HEIGHT = 600
 
@@ -160,14 +164,16 @@ if __name__ == '__main__':
     model_path = '../../faster_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb'
     odapi = DetectorAPI(path_to_ckpt=model_path)
     threshold = 0.7
-    capture = cv2.VideoCapture('custom_video/test5.mp4')
+    capture = cv2.VideoCapture('custom_video/reid1.mp4')
     frameCounter = 0
     f = open("result", "w")
+    old_train_eval_model = model.training
     global_features_list, local_features_list, name_list = feature_extraction(model)
     # print global_features_list[0]
     # print global_features_list[1]
     # print  global_features_list[2]
     # print global_features_list[3]
+    rectangleColor = (0, 165, 255)
     try:
         while True:
             # Retrieve the latest image from the webcam
@@ -175,11 +181,12 @@ if __name__ == '__main__':
             # height, width, channels = fullSizeBaseImage.shape
             # print height, width
              # Resize the image to 320x240
-            (h,w) = fullSizeBaseImage.shape[:2]
-            M=cv2.getRotationMatrix2D((w/2,h/2),-90,1)
-            baseImage=cv2.warpAffine(fullSizeBaseImage,M,(h,w))
-            #baseImage = cv2.resize(fullSizeBaseImage, (1280, 720))
+            # (h,w) = fullSizeBaseImage.shape[:2]
+            # M=cv2.getRotationMatrix2D((w/2,h/2),-90,1)
+            # baseImage=cv2.warpAffine(fullSizeBaseImage,M,(h,w))
+            baseImage = cv2.resize(fullSizeBaseImage, (960, 480))
             #baseImage=fullSizeBaseImage
+            resultImage = baseImage.copy()
 
             # Check if a key was pressed and if it was Q, then break
             # from the infinite loop
@@ -189,7 +196,7 @@ if __name__ == '__main__':
             frameCounter += 1
             # Every 10 frames, we will have to determine which faces
             # are present in the frame
-            if (frameCounter % 50) == 0:
+            if (frameCounter % 100) == 0:
                 boxes, scores, classes, num = odapi.processFrame(baseImage)
 
                 nms_input = np.empty((len(boxes), 5))
@@ -204,6 +211,8 @@ if __name__ == '__main__':
                 nms_input[:, 4] = scores
 
                 picks_from_nms = nms(nms_input)
+                dirname = "frame" + str(frameCounter)
+                os.mkdir('bounding_boxes/query/' + dirname)
 
                 for i in picks_from_nms:
                     global_features_list_copy = []
@@ -211,15 +220,25 @@ if __name__ == '__main__':
                     if classes[i] == 1 and scores[i] > threshold:
                         box = boxes[i]
                         person_bounding_box = baseImage[box[0]:box[2], box[1]:box[3]]
-                        image = "person" + str(i)+'_frameNo_'+str(frameCounter) + '.jpg'
-                        cv2.imwrite("bounding_boxes/query/person" + str(i)+'_frameNo_'+str(frameCounter) +'.jpg', person_bounding_box)
-                        global_features_list_copy = copy.deepcopy(global_features_list)
-                        local_features_list_copy = copy.deepcopy(local_features_list)
-                        Id = find_matching_id(global_features_list_copy,
-                                              local_features_list_copy, name_list, str(image), model)
-                        f.write(Id+"\n")
-    except TypeError:
-        print 'finished processing'
+                        centroid = []
+                        centroid.append(0.5*box[0]+0.5*box[2])
+                        centroid.append(0.5*box[1]+0.5*box[3])
+                        # image = "person" + str(i)+'_frameNo_'+str(frameCounter) + '.jpg'
+                        # cv2.imwrite("bounding_boxes/query/person" + str(i)+'_frameNo_'+str(frameCounter) +'.jpg', person_bounding_box)
+
+                        image = "person"+ str(i) + ".jpg"
+                        cv2.imwrite(os.path.join('bounding_boxes/query/'+dirname, image), person_bounding_box)
+                #         global_features_list_copy = copy.deepcopy(global_features_list)
+                #         local_features_list_copy = copy.deepcopy(local_features_list)
+                #         model.train(old_train_eval_model)
+                #         Id = find_matching_id(global_features_list_copy,
+                #                               local_features_list_copy, name_list, str(image), model)
+                #         f.write("person" + str(i)+'_frameNo_'+str(frameCounter)+Id + "\t"+str(centroid[0])+","+str(centroid[1])+"\n")
+                #         cv2.rectangle(resultImage, (box[1], box[0]), (box[3], box[2]), rectangleColor, 2)
+                #         cv2.putText(resultImage, Id, (int(box[3]), int(box[0])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255,255), 2)
+    #             # cv2.imshow('reid', resultImage)
+    # except TypeError:
+    #     print 'finished processing'
     except AttributeError:
         print 'finished processing'
         pass

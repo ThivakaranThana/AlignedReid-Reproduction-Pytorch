@@ -1,6 +1,7 @@
-import os
-import cv2
-import os
+import paramiko
+import os,sys,cv2,random,datetime
+from scp import SCPClient, SCPException, put, get,asbytes
+
 
 from aligned_reid.model.Model import Model
 from torch.nn.parallel import DataParallel
@@ -13,11 +14,24 @@ from aligned_reid.utils.utils import set_devices
 from torch.autograd import Variable
 import numpy as np
 
+def createSSHClient(server, port, user, password):
+    client = paramiko.SSHClient()
+    client.load_system_host_keys()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(server, port, user, password)
+    return client
+
 
 def feature_extraction(model):
+
     sys_device_ids = (0,)
 
     TVT, TMO = set_devices(sys_device_ids)
+
+    ssh = createSSHClient("10.12.67.36", 22, "madhushanb", "group10@fyp")
+    scp = SCPClient(ssh.get_transport())
+    scp.get('/home/madhushanb/sphereface/Dynamic_Database/',
+            '/home/thiva/AlignedReid-Reproduction-Pytorch/script/my_codes/bounding_boxes/', recursive=True)
 
     root_directory = './bounding_boxes/Dynamic_Database/'
     name_list1 = os.listdir(root_directory)
@@ -63,27 +77,27 @@ def feature_extraction(model):
         local_feature_list.append(llist)
     return global_feature_list, local_feature_list, name_list1
 
-# local_conv_out_channels = 128
-# num_classes = 3
-#
-# model = Model(local_conv_out_channels=local_conv_out_channels, num_classes=num_classes)
-#     # Model wrapper
-# model_w = DataParallel(model)
-#
-# base_lr = 2e-4
-# weight_decay = 0.0005
-# optimizer = optim.Adam(model.parameters(), lr=base_lr, weight_decay=weight_decay)
-#
-# # Bind them together just to save some codes in the following usage.
-# modules_optims = [model, optimizer]
-#
-# model_weight_file = '../../model_weight.pth'
-#
-# map_location = (lambda storage, loc: storage)
-# sd = torch.load(model_weight_file, map_location=map_location)
-# load_state_dict(model, sd)
-# print('Loaded model weights from {}'.format(model_weight_file))
-# g, l, n = feature_extraction(model)
-# print g
-# print len(g[0])
-# print g[0][1]
+local_conv_out_channels = 128
+num_classes = 3
+
+model = Model(local_conv_out_channels=local_conv_out_channels, num_classes=num_classes)
+    # Model wrapper
+model_w = DataParallel(model)
+
+base_lr = 2e-4
+weight_decay = 0.0005
+optimizer = optim.Adam(model.parameters(), lr=base_lr, weight_decay=weight_decay)
+
+# Bind them together just to save some codes in the following usage.
+modules_optims = [model, optimizer]
+
+model_weight_file = '../../model_weight.pth'
+
+map_location = (lambda storage, loc: storage)
+sd = torch.load(model_weight_file, map_location=map_location)
+load_state_dict(model, sd)
+print('Loaded model weights from {}'.format(model_weight_file))
+g, l, n = feature_extraction(model)
+print g
+print len(g[0])
+print g[0][1]
